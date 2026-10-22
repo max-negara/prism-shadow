@@ -332,11 +332,24 @@ function toggleAudio() {
 }
 
 function updateFullscreenToggle() {
-  const isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === gameShell;
+  const isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === gameShell
+    || gameShell.classList.contains("immersive-mode");
   fullscreenToggle.setAttribute("aria-pressed", String(isFullscreen));
   fullscreenToggle.setAttribute("aria-label", isFullscreen ? "Exit fullscreen" : "Enter fullscreen");
   fullscreenIcon.textContent = isFullscreen ? "⊡" : "⛶";
   fullscreenLabel.textContent = isFullscreen ? "EXIT FULLSCREEN" : "FULLSCREEN";
+}
+
+function enterImmersiveMode() {
+  gameShell.classList.add("immersive-mode");
+  document.body.classList.add("immersive-mode-active");
+  updateFullscreenToggle();
+}
+
+function exitImmersiveMode() {
+  gameShell.classList.remove("immersive-mode");
+  document.body.classList.remove("immersive-mode-active");
+  updateFullscreenToggle();
 }
 
 async function toggleFullscreen() {
@@ -346,10 +359,19 @@ async function toggleFullscreen() {
     const requestFullscreen = gameShell.requestFullscreen || gameShell.webkitRequestFullscreen;
     if (isFullscreen && exitFullscreen) {
       await exitFullscreen.call(document);
+    } else if (gameShell.classList.contains("immersive-mode")) {
+      exitImmersiveMode();
     } else if (!isFullscreen && requestFullscreen) {
-      await requestFullscreen.call(gameShell);
+      try {
+        await requestFullscreen.call(gameShell);
+      } catch (error) {
+        console.warn("Browser fullscreen is unavailable; using immersive mode.", error);
+        enterImmersiveMode();
+        showToast("Using immersive view because browser fullscreen is unavailable.", 3000);
+      }
     } else {
-      showToast("Fullscreen is not supported by this browser.", 2600);
+      enterImmersiveMode();
+      showToast("Using immersive view because browser fullscreen is unavailable.", 3000);
     }
   } catch (error) {
     console.warn("Could not change fullscreen mode.", error);
