@@ -19,6 +19,9 @@ const titleCard = document.querySelector(".title-card");
 const audioToggle = document.querySelector("#audio-toggle");
 const audioIcon = document.querySelector("#audio-icon");
 const audioLabel = document.querySelector("#audio-label");
+const fullscreenToggle = document.querySelector("#fullscreen-toggle");
+const fullscreenIcon = document.querySelector("#fullscreen-icon");
+const fullscreenLabel = document.querySelector("#fullscreen-label");
 const shop = document.querySelector("#shop");
 const shopItems = document.querySelector("#shop-items");
 const skinItems = document.querySelector("#skin-items");
@@ -43,21 +46,21 @@ const crystalsCollected = new Set();
 const LEVELS_PER_WORLD = 3;
 const CONTINUE_RUN_COST = 500;
 const upgrades = [
-  { id: "power", name: "Tăiș puternic", icon: "⚔", description: "Fiecare nivel adaugă 3 puncte de daună.", costs: [10, 20, 34, 52, 75, 105, 145, 195, 255, 330], max: 10 },
-  { id: "speed", name: "Lovitură rapidă", icon: "⚡", description: "Fiecare nivel reduce timpul dintre atacuri.", costs: [12, 24, 40, 60, 85, 120, 165, 220, 290, 375], max: 10 },
-  { id: "reach", name: "Tăiș lung", icon: "➶", description: "Fiecare nivel mărește raza loviturii.", costs: [14, 28, 46, 68, 95, 130, 175, 230, 300, 390], max: 10 },
-  { id: "jump", name: "Salt puternic", icon: "↑", description: "Sari mai sus pentru a trece peste obstacole.", costs: [40, 80, 140], max: 3, category: "movement" },
-  { id: "runSpeed", name: "Alergare rapidă", icon: "➜", description: "Alergi mai repede prin nivel.", costs: [45, 90, 150], max: 3, category: "movement" },
+  { id: "power", name: "Power Strike", icon: "⚔", description: "Each level adds 3 damage.", costs: [10, 20, 34, 52, 75, 105, 145, 195, 255, 330], max: 10 },
+  { id: "speed", name: "Swift Strike", icon: "⚡", description: "Each level reduces the time between attacks.", costs: [12, 24, 40, 60, 85, 120, 165, 220, 290, 375], max: 10 },
+  { id: "reach", name: "Long Reach", icon: "➶", description: "Each level increases your attack range.", costs: [14, 28, 46, 68, 95, 130, 175, 230, 300, 390], max: 10 },
+  { id: "jump", name: "High Jump", icon: "↑", description: "Jump higher to clear obstacles.", costs: [40, 80, 140], max: 3, category: "movement" },
+  { id: "runSpeed", name: "Quick Run", icon: "➜", description: "Run faster through each level.", costs: [45, 90, 150], max: 3, category: "movement" },
 ];
 const skins = [
-  { id: "crimson", name: "Ninja stacojiu", cost: 120, hood: "#63253b", body: "#351c32", scarf: "#ff657c", accent: "#ff9b9b" },
-  { id: "jade", name: "Ninja de jad", cost: 180, hood: "#24594b", body: "#19372f", scarf: "#61d69a", accent: "#b4ffd1" },
-  { id: "frost", name: "Ninja de gheață", cost: 240, hood: "#315a78", body: "#20374e", scarf: "#75d9ff", accent: "#d2f7ff" },
-  { id: "shadow", name: "Ninja umbrelor", cost: 320, hood: "#33264f", body: "#211b35", scarf: "#b78bff", accent: "#e2d0ff" },
-  { id: "gold", name: "Ninja de aur", cost: 500, hood: "#79551f", body: "#493417", scarf: "#ffd15e", accent: "#fff0a1" },
-  { id: "fire", name: "Ninja de foc", cost: 1000, hood: "#7d241f", body: "#3d2025", scarf: "#ff542e", accent: "#ffd15e", reward: "boss", description: "Abilitate: aruncător de flăcări cu F." },
+  { id: "crimson", name: "Crimson Ninja", cost: 120, hood: "#63253b", body: "#351c32", scarf: "#ff657c", accent: "#ff9b9b" },
+  { id: "jade", name: "Jade Ninja", cost: 180, hood: "#24594b", body: "#19372f", scarf: "#61d69a", accent: "#b4ffd1" },
+  { id: "frost", name: "Frost Ninja", cost: 240, hood: "#315a78", body: "#20374e", scarf: "#75d9ff", accent: "#d2f7ff" },
+  { id: "shadow", name: "Shadow Ninja", cost: 320, hood: "#33264f", body: "#211b35", scarf: "#b78bff", accent: "#e2d0ff" },
+  { id: "gold", name: "Golden Ninja", cost: 500, hood: "#79551f", body: "#493417", scarf: "#ffd15e", accent: "#fff0a1" },
+  { id: "fire", name: "Fire Ninja", cost: 1000, hood: "#7d241f", body: "#3d2025", scarf: "#ff542e", accent: "#ffd15e", reward: "boss", description: "Ability: use the flamethrower with F." },
 ];
-const defaultSkin = { id: "default", name: "Ninja clasic", hood: "#333247", body: "#242536", scarf: "#c64d66", accent: "#e66c7e" };
+const defaultSkin = { id: "default", name: "Classic Ninja", hood: "#333247", body: "#242536", scarf: "#c64d66", accent: "#e66c7e" };
 const ownedSkins = new Set(["default"]);
 const unlockedSkinRewards = new Set();
 const SKIN_PROGRESS_KEY = "umbra-skin-progress";
@@ -84,12 +87,12 @@ function loadSkinProgress() {
   try {
     progress = JSON.parse(savedProgress);
   } catch (error) {
-    console.warn("Skinurile salvate nu au putut fi citite; se folosesc valorile implicite.", error);
+    console.warn("Could not read saved skin data; using default values.", error);
     return;
   }
   if (!progress || typeof progress !== "object" || !Array.isArray(progress.owned) ||
       !Array.isArray(progress.unlockedRewards)) {
-    console.warn("Datele salvate pentru skinuri sunt invalide; se folosesc valorile implicite.");
+    console.warn("Saved skin data is invalid; using default values.");
     return;
   }
 
@@ -108,11 +111,11 @@ function loadSkinProgress() {
 }
 
 const worlds = [
-  { name: "Pădurea de jad", colors: ["#182e31", "#29473f", "#3d6450", "#25332f", "#7ef0a4"], ground: "#293a32", platform: "#59755a", accent: "#a5f2c0", moon: "#b7e6b6", enemy: "#cf6d6d", boss: "#922f52", kind: "forest" },
-  { name: "Deșertul aprins", colors: ["#38263a", "#684047", "#a25448", "#623e3c", "#ffcc72"], ground: "#513a35", platform: "#a15c49", accent: "#ffd081", moon: "#ffd7a1", enemy: "#e87952", boss: "#9d3549", kind: "desert" },
-  { name: "Munții înghețați", colors: ["#182b43", "#294361", "#466684", "#25364c", "#91e4f4"], ground: "#2e4353", platform: "#7195a4", accent: "#b0f5ff", moon: "#d2f3ff", enemy: "#79b9dd", boss: "#545aac", kind: "ice" },
-  { name: "Peșterile de lavă", colors: ["#2d1929", "#512336", "#823528", "#442329", "#ff755b"], ground: "#44272b", platform: "#804039", accent: "#ff9870", moon: "#ffb271", enemy: "#e35b45", boss: "#ab2940", kind: "lava" },
-  { name: "Tărâmul umbrelor", colors: ["#171b35", "#28264b", "#44335e", "#28263d", "#d3a8ff"], ground: "#29283a", platform: "#605073", accent: "#d3a8ff", moon: "#d6c5ff", enemy: "#a071cf", boss: "#7542a0", kind: "shadow" },
+  { name: "Jade Forest", colors: ["#182e31", "#29473f", "#3d6450", "#25332f", "#7ef0a4"], ground: "#293a32", platform: "#59755a", accent: "#a5f2c0", moon: "#b7e6b6", enemy: "#cf6d6d", boss: "#922f52", kind: "forest" },
+  { name: "Blazing Desert", colors: ["#38263a", "#684047", "#a25448", "#623e3c", "#ffcc72"], ground: "#513a35", platform: "#a15c49", accent: "#ffd081", moon: "#ffd7a1", enemy: "#e87952", boss: "#9d3549", kind: "desert" },
+  { name: "Frozen Mountains", colors: ["#182b43", "#294361", "#466684", "#25364c", "#91e4f4"], ground: "#2e4353", platform: "#7195a4", accent: "#b0f5ff", moon: "#d2f3ff", enemy: "#79b9dd", boss: "#545aac", kind: "ice" },
+  { name: "Lava Caves", colors: ["#2d1929", "#512336", "#823528", "#442329", "#ff755b"], ground: "#44272b", platform: "#804039", accent: "#ff9870", moon: "#ffb271", enemy: "#e35b45", boss: "#ab2940", kind: "lava" },
+  { name: "Shadow Realm", colors: ["#171b35", "#28264b", "#44335e", "#28263d", "#d3a8ff"], ground: "#29283a", platform: "#605073", accent: "#d3a8ff", moon: "#d6c5ff", enemy: "#a071cf", boss: "#7542a0", kind: "shadow" },
 ];
 
 const defeatedEnemies = worlds.map(() => new Map());
@@ -190,8 +193,8 @@ function initializeAudio() {
     if (!AudioContextClass) {
       audioEnabled = false;
       audioToggle.disabled = true;
-      audioLabel.textContent = "AUDIO INDISPONIBIL";
-      audioToggle.setAttribute("aria-label", "Sunetul nu este disponibil în acest browser");
+      audioLabel.textContent = "AUDIO UNAVAILABLE";
+      audioToggle.setAttribute("aria-label", "Audio is unavailable in this browser");
       return;
     }
     audioContext = new AudioContextClass();
@@ -323,9 +326,35 @@ function toggleAudio() {
     masterGain.gain.setTargetAtTime(audioEnabled ? 0.55 : 0, audioContext.currentTime, 0.035);
   }
   audioToggle.setAttribute("aria-pressed", String(audioEnabled));
-  audioToggle.setAttribute("aria-label", audioEnabled ? "Oprește sunetul" : "Pornește sunetul");
+  audioToggle.setAttribute("aria-label", audioEnabled ? "Mute sound" : "Unmute sound");
   audioIcon.textContent = audioEnabled ? "♫" : "♪";
-  audioLabel.textContent = audioEnabled ? "SUNET PORNIT" : "SUNET OPRIT";
+  audioLabel.textContent = audioEnabled ? "SOUND ON" : "SOUND OFF";
+}
+
+function updateFullscreenToggle() {
+  const isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === gameShell;
+  fullscreenToggle.setAttribute("aria-pressed", String(isFullscreen));
+  fullscreenToggle.setAttribute("aria-label", isFullscreen ? "Exit fullscreen" : "Enter fullscreen");
+  fullscreenIcon.textContent = isFullscreen ? "⊡" : "⛶";
+  fullscreenLabel.textContent = isFullscreen ? "EXIT FULLSCREEN" : "FULLSCREEN";
+}
+
+async function toggleFullscreen() {
+  try {
+    const isFullscreen = (document.fullscreenElement || document.webkitFullscreenElement) === gameShell;
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen;
+    const requestFullscreen = gameShell.requestFullscreen || gameShell.webkitRequestFullscreen;
+    if (isFullscreen && exitFullscreen) {
+      await exitFullscreen.call(document);
+    } else if (!isFullscreen && requestFullscreen) {
+      await requestFullscreen.call(gameShell);
+    } else {
+      showToast("Fullscreen is not supported by this browser.", 2600);
+    }
+  } catch (error) {
+    console.warn("Could not change fullscreen mode.", error);
+    showToast("Could not change fullscreen mode. Try your browser's fullscreen option.", 3000);
+  }
 }
 
 function newPlayer() {
@@ -387,17 +416,19 @@ function loadWorld(index, sublevel = 0, spawnX = 80) {
     });
   }
   if (sublevel === LEVELS_PER_WORLD - 1) {
-    enemies.push({
-      id: `${sublevel}-boss`,
-      x: bossPosition, homeX: bossPosition,
-      y: GROUND_Y - (index === worlds.length - 1 ? 76 : 58),
-      w: index === worlds.length - 1 ? 82 : 51,
-      h: index === worlds.length - 1 ? 76 : 58,
-      hp: 4 + currentDifficulty * 5, speed: 0.7 + currentDifficulty * 0.07,
-      direction: -1, alive: true, boss: true, phase: 0, shootCooldown: 80,
-      attackCooldown: 150, attackWindup: 0, attackActive: 0, attackHit: false, attackDirection: -1,
-      superBoss: index === worlds.length - 1,
-    });
+    if (index !== worlds.length - 1) {
+      enemies.push({
+        id: `${sublevel}-boss`,
+        x: bossPosition, homeX: bossPosition,
+        y: GROUND_Y - (index === worlds.length - 1 ? 76 : 58),
+        w: index === worlds.length - 1 ? 82 : 51,
+        h: index === worlds.length - 1 ? 76 : 58,
+        hp: 4 + currentDifficulty * 5, speed: 0.7 + currentDifficulty * 0.07,
+        direction: -1, alive: true, boss: true, phase: 0, shootCooldown: 80,
+        attackCooldown: 150, attackWindup: 0, attackActive: 0, attackHit: false, attackDirection: -1,
+        superBoss: index === worlds.length - 1,
+      });
+    }
   } else {
     const bagId = `${sublevel}-stage-bag`;
     if (!collectedEnemyLoot[index].has(bagId)) {
@@ -435,7 +466,7 @@ function loadWorld(index, sublevel = 0, spawnX = 80) {
   fireballs = [];
   flameDuration = 0;
   flameHitEnemies.clear();
-  worldLabel.textContent = `${worlds[index].name} · Nivel ${sublevel + 1}/${LEVELS_PER_WORLD}`;
+  worldLabel.textContent = `${worlds[index].name} · Level ${sublevel + 1}/${LEVELS_PER_WORLD}`;
   updateHUD();
   if (isNewStage || !stageCheckpoint) {
     stageCheckpoint = { world: index, sublevel, x: player.x };
@@ -447,7 +478,7 @@ function updateHUD() {
   crystalTrack.replaceChildren(...worlds.map((_, index) => {
     const slot = document.createElement("span");
     slot.className = `crystal-slot${crystalsCollected.has(index) ? " collected" : ""}`;
-    slot.setAttribute("aria-label", crystalsCollected.has(index) ? `Cristalul ${index + 1} adunat` : `Cristalul ${index + 1} lipsă`);
+    slot.setAttribute("aria-label", crystalsCollected.has(index) ? `Crystal ${index + 1} collected` : `Crystal ${index + 1} missing`);
     return slot;
   }));
   healthDisplay.replaceChildren(...[0, 1, 2].map(index => {
@@ -456,9 +487,9 @@ function updateHUD() {
     heart.textContent = "♥";
     return heart;
   }));
-  healthDisplay.setAttribute("aria-label", `${player.hp} din 3 vieți`);
+  healthDisplay.setAttribute("aria-label", `${player.hp} of 3 lives`);
   coinCount.textContent = coins;
-  document.querySelector("#wallet").setAttribute("aria-label", `${coins} monede`);
+  document.querySelector("#wallet").setAttribute("aria-label", `${coins} coins`);
 }
 
 function showToast(message, duration = 1800) {
@@ -630,11 +661,11 @@ function startCustomLevel(spawnX = 52) {
   titleCard.hidden = false;
   overlay.classList.remove("editor-open");
   overlay.classList.add("hidden");
-  worldLabel.textContent = "Nivelul meu";
+  worldLabel.textContent = "My Level";
   gameState = "playing";
   customLevelMode = true;
   updateHUD();
-  showToast("NIVELUL TĂU · AJUNGI LA POARTA DIN DREAPTA!");
+  showToast("YOUR LEVEL · REACH THE GATE ON THE RIGHT!");
 }
 
 function finishCustomLevel() {
@@ -644,10 +675,10 @@ function finishCustomLevel() {
   player.vx = 0;
   titleCard.hidden = false;
   overlay.classList.remove("hidden");
-  overlay.querySelector(".eyebrow").textContent = "NIVEL PERSONALIZAT";
-  overlay.querySelector("h1").innerHTML = "NIVEL<br><span>COMPLET!</span>";
-  overlay.querySelector(".title-card p").innerHTML = "Ai trecut propriul nivel!<br>Poți să-l modifici sau să-l joci din nou.";
-  startButton.innerHTML = "EDITEAZĂ NIVELUL <span>✎</span>";
+  overlay.querySelector(".eyebrow").textContent = "CUSTOM LEVEL";
+  overlay.querySelector("h1").innerHTML = "LEVEL<br><span>COMPLETE!</span>";
+  overlay.querySelector(".title-card p").innerHTML = "You beat your own level!<br>Edit it or play it again.";
+  startButton.innerHTML = "EDIT LEVEL <span>✎</span>";
   customReplayButton.hidden = false;
   customHomeButton.hidden = false;
   continueRunButton.hidden = true;
@@ -664,10 +695,10 @@ function returnToMainMenu() {
   customHomeButton.hidden = true;
   continueRunButton.hidden = true;
   overlay.classList.remove("editor-open", "shop-open", "hidden");
-  overlay.querySelector(".eyebrow").textContent = "O AVENTURĂ ÎN CINCI LUMI";
+  overlay.querySelector(".eyebrow").textContent = "AN ADVENTURE THROUGH FIVE WORLDS";
   overlay.querySelector("h1").innerHTML = "Shadow<br><span>of the Prism</span>";
-  overlay.querySelector(".title-card p").innerHTML = "Treci prin 3 niveluri în fiecare lume.<br>Înfruntă monstrul suprem și ia cele 5 cristale.";
-  startButton.innerHTML = "JOACĂ ACUM <span>→</span>";
+  overlay.querySelector(".title-card p").innerHTML = "Fight through 3 levels in each world.<br>Defeat the ultimate boss and claim all 5 crystals.";
+  startButton.innerHTML = "PLAY NOW <span>→</span>";
 }
 
 function beginGame() {
@@ -701,12 +732,12 @@ function beginGame() {
   continueRunButton.hidden = true;
   shop.hidden = true;
   overlay.classList.remove("shop-open");
-  overlay.querySelector(".eyebrow").textContent = "O AVENTURĂ ÎN CINCI LUMI";
+  overlay.querySelector(".eyebrow").textContent = "AN ADVENTURE THROUGH FIVE WORLDS";
   overlay.querySelector("h1").innerHTML = "Shadow<br><span>of the Prism</span>";
-  overlay.querySelector(".title-card p").innerHTML = "Treci prin 3 niveluri în fiecare lume.<br>Înfruntă monstrul suprem și ia cele 5 cristale.";
-  startButton.innerHTML = "JOACĂ ACUM <span>→</span>";
+  overlay.querySelector(".title-card p").innerHTML = "Fight through 3 levels in each world.<br>Defeat the ultimate boss and claim all 5 crystals.";
+  startButton.innerHTML = "PLAY NOW <span>→</span>";
   overlay.classList.add("hidden");
-  showToast("CHECKPOINT SALVAT · LUMEA 1 · NIVELUL 1/3: PĂDUREA DE JAD");
+  showToast("CHECKPOINT SAVED · WORLD 1 · LEVEL 1/3: JADE FOREST");
 }
 
 function nextWorld() {
@@ -786,7 +817,7 @@ function updateEndingSequence() {
     player.hp = 3;
     keys.clear();
     updateHUD();
-    showToast("BOSSUL TE PROVOACĂ! ÎNVINGE-L CU ATACURILE TALE!", 3000);
+    showToast("THE BOSS CHALLENGES YOU! DEFEAT IT WITH YOUR ATTACKS!", 3000);
     return;
   }
   if (endingPhase === "absorb" && endingTimer >= 210) {
@@ -805,41 +836,41 @@ function openShop() {
   overlay.classList.add("shop-open");
   titleCard.hidden = true;
   shop.hidden = false;
-  shop.querySelector(".eyebrow").textContent = `LUMEA ${currentWorld + 1} · NIVELUL ${currentSublevel + 1}/${LEVELS_PER_WORLD}`;
+  shop.querySelector(".eyebrow").textContent = `WORLD ${currentWorld + 1} · LEVEL ${currentSublevel + 1}/${LEVELS_PER_WORLD}`;
   shopMessage.textContent = currentSublevel === LEVELS_PER_WORLD - 1 && currentWorld === worlds.length - 1
-    ? "Pregătește-te pentru confruntarea finală cu monstrul suprem!"
-    : "Îmbunătățește-ți atacul înainte de următoarea etapă.";
+    ? "Prepare for the final showdown with the ultimate boss!"
+    : "Upgrade your attacks before the next stage.";
   if (currentSublevel < LEVELS_PER_WORLD - 1) {
-    continueButton.innerHTML = `CONTINUĂ SPRE NIVELUL ${currentSublevel + 2}/${LEVELS_PER_WORLD} <span>→</span>`;
+    continueButton.innerHTML = `CONTINUE TO LEVEL ${currentSublevel + 2}/${LEVELS_PER_WORLD} <span>→</span>`;
   } else if (currentWorld === worlds.length - 1) {
-    continueButton.innerHTML = "ÎNCHEIE AVENTURA <span>✦</span>";
+    continueButton.innerHTML = "FINISH ADVENTURE <span>✦</span>";
   } else {
-    continueButton.innerHTML = `CONTINUĂ SPRE LUMEA ${currentWorld + 2} <span>→</span>`;
+    continueButton.innerHTML = `CONTINUE TO WORLD ${currentWorld + 2} <span>→</span>`;
   }
   updateShop();
 }
 
 function updateShop() {
-  shopBalance.textContent = `BĂNUȚI ADUNAȚI: ◈ ${coins}`;
+  shopBalance.textContent = `COINS COLLECTED: ◈ ${coins}`;
   for (const upgrade of upgrades) {
     const level = getUpgradeLevel(upgrade);
     const cost = upgrade.costs[level];
     const item = shopItems.querySelector(`[data-upgrade="${upgrade.id}"]`);
     const button = item.querySelector("button");
     const levelDescription = upgrade.id === "power"
-      ? `Daune pe lovitură: ${1 + level * 3}.`
+      ? `Damage per hit: ${1 + level * 3}.`
       : upgrade.id === "speed"
-        ? `Timp între atacuri: ${attackCooldownForLevel(level)} pași.`
+        ? `Time between attacks: ${attackCooldownForLevel(level)} frames.`
         : upgrade.id === "reach"
-          ? `Rază suplimentară: ${level * 26} pixeli.`
+          ? `Bonus range: ${level * 26} pixels.`
           : upgrade.id === "jump"
-            ? `Înălțime de salt: ${jumpPowerForLevel(level).toFixed(1)}.`
-            : `Viteză de alergare: ${movementSpeedForLevel(level).toFixed(2)}.`;
+            ? `Jump height: ${jumpPowerForLevel(level).toFixed(1)}.`
+            : `Running speed: ${movementSpeedForLevel(level).toFixed(2)}.`;
     item.querySelector(".shop-item-copy small:nth-of-type(1)").textContent = levelDescription;
-    item.querySelector(".shop-item-level").textContent = level === upgrade.max ? "NIVEL MAXIM" : `NIVEL ${level}/${upgrade.max}`;
-    item.querySelector(".upgrade-cost").textContent = level === upgrade.max ? "ÎMBUNĂTĂȚIRE MAXIMĂ" : `PREȚ: ◈ ${cost}`;
+    item.querySelector(".shop-item-level").textContent = level === upgrade.max ? "MAX LEVEL" : `LEVEL ${level}/${upgrade.max}`;
+    item.querySelector(".upgrade-cost").textContent = level === upgrade.max ? "MAX UPGRADE" : `COST: ◈ ${cost}`;
     button.disabled = level === upgrade.max || coins < cost;
-    button.textContent = level === upgrade.max ? "MAXIM" : coins < cost ? "NU AJUNG" : "CUMPĂRĂ";
+    button.textContent = level === upgrade.max ? "MAXED" : coins < cost ? "NOT ENOUGH" : "BUY";
   }
   updateSkinShop();
 }
@@ -908,7 +939,7 @@ function renderShopItems() {
     const price = document.createElement("small");
     price.className = "skin-cost";
     const description = document.createElement("small");
-    description.textContent = skin.description || "Skin cosmetic.";
+    description.textContent = skin.description || "Cosmetic skin.";
     copy.append(name, description, price);
     const button = document.createElement("button");
     button.className = "shop-button";
@@ -928,14 +959,14 @@ function updateSkinShop() {
     const equipped = equippedSkinId === skin.id;
     const button = item.querySelector("button");
     item.querySelector(".skin-cost").textContent = equipped
-      ? "ECHIPAT"
+      ? "EQUIPPED"
       : owned
-        ? "DEȚINUT"
+        ? "OWNED"
         : skin.reward && !unlockedSkinRewards.has(skin.id)
-          ? `PREȚ: ◈ ${skin.cost} · SAU CÂȘTIGĂ-L LA BOSS`
-          : `PREȚ: ◈ ${skin.cost}`;
+          ? `COST: ◈ ${skin.cost} · OR EARN IT BY DEFEATING THE BOSS`
+          : `COST: ◈ ${skin.cost}`;
     button.disabled = equipped || (!owned && coins < skin.cost);
-    button.textContent = equipped ? "ECHIPAT" : owned ? "ECHIPEAZĂ" : coins < skin.cost ? "NU AJUNG" : "CUMPĂRĂ";
+    button.textContent = equipped ? "EQUIPPED" : owned ? "EQUIP" : coins < skin.cost ? "NOT ENOUGH" : "BUY";
   }
 }
 
@@ -949,7 +980,7 @@ function buyOrEquipSkin(skinId) {
   }
   equippedSkinId = skin.id;
   saveSkinProgress();
-  shopMessage.textContent = `${skin.name} este echipat!`;
+  shopMessage.textContent = `${skin.name} equipped!`;
   updateHUD();
   updateShop();
 }
@@ -961,14 +992,14 @@ function buyUpgrade(upgradeId) {
   if (level >= upgrade.max) return;
   const cost = upgrade.costs[level];
   if (coins < cost) {
-    shopMessage.textContent = "Nu ai destule monede încă.";
+    shopMessage.textContent = "You don't have enough coins yet.";
     updateShop();
     return;
   }
   coins -= cost;
   if (upgrade.category === "movement") movementUpgrades[upgrade.id]++;
   else attackUpgrades[upgrade.id]++;
-  shopMessage.textContent = `${upgrade.name} îmbunătățit la nivelul ${level + 1}!`;
+  shopMessage.textContent = `${upgrade.name} upgraded to level ${level + 1}!`;
   updateHUD();
   updateShop();
 }
@@ -983,11 +1014,11 @@ function continueFromShop() {
   if (currentWorld === worlds.length - 1 && currentSublevel === LEVELS_PER_WORLD - 1) {
     gameState = "won";
     overlay.classList.remove("hidden");
-    overlay.querySelector(".eyebrow").textContent = "AI SALVAT CELE CINCI LUMI!";
-    overlay.querySelector("h1").innerHTML = "MISIUNE<br><span>ÎMPLINITĂ</span>";
-    overlay.querySelector(".title-card p").innerHTML = "Cele cinci cristale s-au întors acasă.<br>Legenda ninjaului va dăinui!";
-    startButton.innerHTML = "JOACĂ DIN NOU <span>↻</span>";
-    showToast("TOATE CELE CINCI CRISTALE SUNT ALE TALE!", 2600);
+    overlay.querySelector(".eyebrow").textContent = "YOU SAVED ALL FIVE WORLDS!";
+    overlay.querySelector("h1").innerHTML = "MISSION<br><span>COMPLETE</span>";
+    overlay.querySelector(".title-card p").innerHTML = "The five crystals have returned home.<br>The ninja's legend will live on!";
+    startButton.innerHTML = "PLAY AGAIN <span>↻</span>";
+    showToast("ALL FIVE CRYSTALS ARE YOURS!", 2600);
     return;
   }
   if (currentSublevel < LEVELS_PER_WORLD - 1) {
@@ -996,7 +1027,7 @@ function continueFromShop() {
     loadWorld(currentWorld + 1, 0);
   }
   gameState = "playing";
-  showToast(`CHECKPOINT SALVAT · LUMEA ${currentWorld + 1} · NIVELUL ${currentSublevel + 1}/${LEVELS_PER_WORLD}: ${worlds[currentWorld].name.toLocaleUpperCase("ro")}`, 2600);
+  showToast(`CHECKPOINT SAVED · WORLD ${currentWorld + 1} · LEVEL ${currentSublevel + 1}/${LEVELS_PER_WORLD}: ${worlds[currentWorld].name.toLocaleUpperCase("en")}`, 2600);
 }
 
 function endGame() {
@@ -1019,15 +1050,15 @@ function endGame() {
     titleCard.hidden = false;
     gameStage.classList.remove("shop-open");
     overlay.classList.remove("hidden", "shop-open");
-    overlay.querySelector(".eyebrow").textContent = "S-A TERMINAT JOCUL";
-    overlay.querySelector("h1").innerHTML = "AI PIERDUT<br><span>TOATE ÎNCERCĂRILE</span>";
-    overlay.querySelector(".title-card p").innerHTML = `Cele trei încercări s-au terminat.<br>Checkpoint: lumea ${gameOverCheckpoint.world + 1}, nivelul ${gameOverCheckpoint.sublevel + 1}. Ai ${coins} bănuți. Plătește ${CONTINUE_RUN_COST} pentru a continua sau începe din nou.`;
-    startButton.innerHTML = "JOACĂ DIN NOU <span>↻</span>";
+    overlay.querySelector(".eyebrow").textContent = "GAME OVER";
+    overlay.querySelector("h1").innerHTML = "YOU'VE USED<br><span>ALL YOUR RUNS</span>";
+    overlay.querySelector(".title-card p").innerHTML = `All three runs are over.<br>Checkpoint: world ${gameOverCheckpoint.world + 1}, level ${gameOverCheckpoint.sublevel + 1}. You have ${coins} coins. Pay ${CONTINUE_RUN_COST} to continue or start over.`;
+    startButton.innerHTML = "PLAY AGAIN <span>↻</span>";
     continueRunButton.hidden = false;
     continueRunButton.disabled = coins < CONTINUE_RUN_COST;
     continueRunButton.textContent = coins < CONTINUE_RUN_COST
-      ? `AI NEVOIE DE ${CONTINUE_RUN_COST} ◈`
-      : `CONTINUĂ PENTRU ${CONTINUE_RUN_COST} ◈`;
+      ? `NEED ${CONTINUE_RUN_COST} ◈`
+      : `CONTINUE FOR ${CONTINUE_RUN_COST} ◈`;
     updateHUD();
     return;
   }
@@ -1038,7 +1069,7 @@ function endGame() {
   }
   loadWorld(currentWorld, currentSublevel, respawnX);
   gameState = "playing";
-  showToast(`AI PIERDUT TOATE VIEȚILE. REVII AICI. ÎNCERCAREA ${failedRuns}/3.`, 2600);
+  showToast(`YOU LOST ALL YOUR LIVES. RESPAWNING HERE. RUN ${failedRuns}/3.`, 2600);
 }
 
 function continueRunAfterGameOver() {
@@ -1060,7 +1091,7 @@ function continueRunAfterGameOver() {
   gameStage.classList.remove("shop-open");
   overlay.classList.remove("shop-open");
   updateHUD();
-  showToast("AI PLĂTIT 500 DE BĂNUȚI. CONTINUI DE UNDE AI RĂMAS!", 2600);
+  showToast("YOU PAID 500 COINS. PICKING UP WHERE YOU LEFT OFF!", 2600);
 }
 
 function startAttack() {
@@ -1074,7 +1105,7 @@ function startAttack() {
 function startFlamethrower() {
   if (gameState !== "playing" || (endingPhase && endingPhase !== "fight") || equippedSkinId !== "fire") return;
   if (flameCooldown > 0) {
-    showToast(`ARUNCĂTORUL DE FLĂCĂRI SE REÎNCARCĂ: ${(flameCooldown / 60).toFixed(1)}s`, 900);
+    showToast(`FLAMETHROWER RECHARGING: ${(flameCooldown / 60).toFixed(1)}s`, 900);
     return;
   }
   flameDuration = 30;
@@ -1112,9 +1143,9 @@ function damageEnemy(enemy, damage) {
     equippedSkinId = "fire";
     saveSkinProgress();
     updateSkinShop();
-    showToast("BOSSUL FINAL ÎNVINS! AI CÂȘTIGAT ȘI ECHIPAT NINJA DE FOC!", 3400);
+    showToast("FINAL BOSS DEFEATED! YOU EARNED AND EQUIPPED THE FIRE NINJA!", 3400);
   } else if (enemy.boss) {
-    showToast("GARDIANUL A FOST ÎNVINS! CRISTALUL TE AȘTEAPTĂ.");
+    showToast("GUARDIAN DEFEATED! THE CRYSTAL AWAITS.");
   }
 }
 
@@ -1138,7 +1169,7 @@ function activateFinalBossCheat() {
   stageCheckpoint = { world: currentWorld, sublevel: currentSublevel, x: player.x };
   cameraX = Math.max(0, Math.min(currentWorldWidth - WIDTH, player.x - WIDTH * 0.42));
   gameState = "playing";
-  showToast("COD SECRET ACTIVAT: BOSSUL SUPREM!", 2600);
+  showToast("CHEAT ACTIVATED: ULTIMATE BOSS!", 2600);
 }
 
 function activateMoneyShopCheat() {
@@ -1147,7 +1178,7 @@ function activateMoneyShopCheat() {
   if (gameState !== "shop") openShop();
   else updateShop();
   updateHUD();
-  shopMessage.textContent = "COD SECRET ACTIVAT: AI PRIMIT 100.000 DE BĂNUȚI!";
+  shopMessage.textContent = "CHEAT ACTIVATED: YOU RECEIVED 100,000 COINS!";
 }
 
 function activateMaxUpgradesCheat() {
@@ -1157,7 +1188,7 @@ function activateMaxUpgradesCheat() {
     else attackUpgrades[upgrade.id] = upgrade.max;
   }
   if (gameState === "shop") updateShop();
-  showToast("COD SECRET ACTIVAT: TOATE UPGRADE-URILE SUNT LA MAXIM!", 2600);
+  showToast("CHEAT ACTIVATED: ALL UPGRADES MAXED OUT!", 2600);
 }
 
 function activateFireSkinCheat() {
@@ -1167,21 +1198,21 @@ function activateFireSkinCheat() {
   flameCooldown = 0;
   saveSkinProgress();
   updateSkinShop();
-  showToast("COD SECRET ACTIVAT: NINJA DE FOC ESTE ECHIPAT! APASĂ F!", 3000);
+  showToast("CHEAT ACTIVATED: FIRE NINJA EQUIPPED! PRESS F!", 3000);
 }
 
 function activateSkipLevelCheat() {
   if (gameState === "title") beginGame();
   if (gameState !== "playing") return;
   nextWorld();
-  shopMessage.textContent = "COD SECRET ACTIVAT: AI SĂRIT PESTE NIVEL!";
-  showToast("COD SECRET ACTIVAT: NIVEL SĂRIT!", 2200);
+  shopMessage.textContent = "CHEAT ACTIVATED: YOU SKIPPED THE LEVEL!";
+  showToast("CHEAT ACTIVATED: LEVEL SKIPPED!", 2200);
 }
 
 function activateInvulnerabilityCheat() {
   if (gameState !== "playing") return;
   invulnerabilityCheatEnabled = true;
-  showToast("COD SECRET ACTIVAT: EȘTI INVULNERABIL! APASĂ SPACE DE 3 ORI CA SĂ ZBORI!", 3200);
+  showToast("CHEAT ACTIVATED: YOU'RE INVULNERABLE! PRESS SPACE 3 TIMES TO FLY!", 3200);
 }
 
 function activateFlightCheat() {
@@ -1189,7 +1220,7 @@ function activateFlightCheat() {
   flightCheatEnabled = true;
   player.onGround = false;
   player.vy = -5;
-  showToast("ZBOR ACTIVAT: ȚINE SPACE CA SĂ ZBORI!", 2200);
+  showToast("FLIGHT ACTIVATED: HOLD SPACE TO FLY!", 2200);
 }
 
 function handleKeyDown(event) {
@@ -1540,7 +1571,7 @@ function update(delta = 16.6667) {
       collectedEnemyLoot[currentWorld].add(drop.sourceId);
       loot.splice(i, 1);
       updateHUD();
-      showToast(`+${drop.value} MONED${drop.value === 1 ? "Ă" : "E"}!`, 700);
+      showToast(`+${drop.value} COIN${drop.value === 1 ? "" : "S"}!`, 700);
       if (drop.type === "pouch") {
         nextWorld();
         break;
@@ -1549,6 +1580,7 @@ function update(delta = 16.6667) {
   }
 
   const boss = enemies.find(enemy => enemy.boss);
+  const isFinalStage = currentWorld === worlds.length - 1 && currentSublevel === LEVELS_PER_WORLD - 1;
   if (customLevelMode && overlaps(player, {
     x: currentWorldWidth - 76,
     y: GROUND_Y - 62,
@@ -1558,7 +1590,7 @@ function update(delta = 16.6667) {
     finishCustomLevel();
     return;
   }
-  if (!endingPhase && currentSublevel === LEVELS_PER_WORLD - 1 && boss && !boss.alive &&
+  if (!endingPhase && currentSublevel === LEVELS_PER_WORLD - 1 && (isFinalStage || (boss && !boss.alive)) &&
       overlaps(player, { x: crystalPosition - 6, y: GROUND_Y - 36, w: 24, h: 36 })) nextWorld();
   cameraX = Math.max(0, Math.min(currentWorldWidth - WIDTH, player.x - WIDTH * 0.42));
 }
@@ -1587,7 +1619,7 @@ function hurtPlayer(fell, enemyDirection = 0) {
   }
   player.invulnerable = 100;
   updateHUD();
-  showToast("AI FOST LOVIT! FEREȘTE-TE DE MONȘTRI.", 1100);
+  showToast("YOU'VE BEEN HIT! WATCH OUT FOR MONSTERS.", 1100);
 }
 
 function rect(x, y, w, h, color) {
@@ -1928,9 +1960,9 @@ function drawEndingScene(time) {
       drawEndingCrystal(x, y, worlds[index].accent);
     }
     if (endingPhase === "gather") {
-      drawEndingDialogue("NINJA", "Cele cinci cristale... împreună vor salva lumile!");
+      drawEndingDialogue("NINJA", "The five crystals... together, they'll save the worlds!");
     } else if (endingTimer < 55) {
-      drawEndingDialogue("NINJA", "Hei! Cristalele! Dă-mi-le înapoi!");
+      drawEndingDialogue("NINJA", "Hey! The crystals! Give them back!");
     }
   }
   if (endingPhase === "dialogue") {
@@ -1943,9 +1975,9 @@ function drawEndingScene(time) {
       );
     }
     const lineIndex = Math.floor(endingTimer / 100);
-    if (lineIndex === 0) drawEndingDialogue("BOSSUL", "Puterea cristalelor va fi doar a mea!");
-    else if (lineIndex === 1) drawEndingDialogue("NINJA", "Nu te voi lăsa să distrugi cele cinci lumi!");
-    else drawEndingDialogue("BOSSUL", "Atunci luptă pentru ele, ninja!");
+    if (lineIndex === 0) drawEndingDialogue("BOSS", "The crystals' power will be mine!");
+    else if (lineIndex === 1) drawEndingDialogue("NINJA", "I won't let you destroy the five worlds!");
+    else drawEndingDialogue("BOSS", "Then fight for them, ninja!");
   }
   if (endingPhase === "absorb") {
     const progress = Math.min(endingTimer / 210, 1);
@@ -1958,7 +1990,7 @@ function drawEndingScene(time) {
     }
     ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, progress - .7) * .9})`;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    if (endingTimer < 125) drawEndingDialogue("NINJA", "Cristalele... puterea lor curge prin mine!");
+    if (endingTimer < 125) drawEndingDialogue("NINJA", "The crystals... I can feel their power flowing through me!");
   }
 }
 
@@ -1999,10 +2031,10 @@ function draw(time = 0) {
     ctx.fillStyle = world.accent;
     ctx.textAlign = "center";
     ctx.font = '10px "Press Start 2P", monospace';
-    ctx.fillText(`LUMEA ${currentWorld + 1} · NIVEL ${currentSublevel + 1}/${LEVELS_PER_WORLD}`, WIDTH / 2, HEIGHT / 2 - 5);
+    ctx.fillText(`WORLD ${currentWorld + 1} · LEVEL ${currentSublevel + 1}/${LEVELS_PER_WORLD}`, WIDTH / 2, HEIGHT / 2 - 5);
     ctx.fillStyle = "#fff";
     ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText(world.name.toLocaleUpperCase("ro"), WIDTH / 2, HEIGHT / 2 + 20);
+    ctx.fillText(world.name.toLocaleUpperCase("en"), WIDTH / 2, HEIGHT / 2 + 20);
   }
   if (damageFlash > 0) {
     const intensity = damageFlash / 32;
@@ -2068,19 +2100,22 @@ for (const button of levelEditor.querySelectorAll(".editor-tool")) {
       toolButton.classList.toggle("selected", toolButton === button);
     }
     editorMessage.textContent = editorTool === "erase"
-      ? "Apasă pe un obiect din grilă pentru a-l șterge."
-      : `Instrument selectat: ${button.textContent}. Apasă pe grilă pentru plasare.`;
+      ? "Click an object on the grid to erase it."
+      : `Selected tool: ${button.textContent}. Click the grid to place it.`;
   });
 }
 editorClearButton.addEventListener("click", () => {
   customLevelObjects.length = 0;
   drawLevelEditor();
-  editorMessage.textContent = "Nivelul este gol. Poarta de final rămâne în dreapta.";
+  editorMessage.textContent = "The level is empty. The exit gate stays on the right.";
 });
 editorPlayButton.addEventListener("click", () => startCustomLevel());
 editorBackButton.addEventListener("click", closeLevelEditor);
 continueRunButton.addEventListener("click", continueRunAfterGameOver);
 audioToggle.addEventListener("click", toggleAudio);
+fullscreenToggle.addEventListener("click", toggleFullscreen);
+document.addEventListener("fullscreenchange", updateFullscreenToggle);
+document.addEventListener("webkitfullscreenchange", updateFullscreenToggle);
 continueButton.addEventListener("click", continueFromShop);
 loadSkinProgress();
 renderShopItems();

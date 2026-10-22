@@ -65,6 +65,13 @@ body.part-two-screen { min-width: 0; overflow: hidden; background: #000; }
 .game-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #101a21; }
 .game-stage.shop-open { aspect-ratio: auto; height: clamp(500px, 58vw, 620px); }
 .game-stage.editor-open { aspect-ratio: auto; height: clamp(600px, 70vw, 760px); }
+.game-shell:fullscreen { display: flex; width: 100%; height: 100%; min-height: 0; flex-direction: column; margin: 0; padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); overflow: hidden; background: #10121d; }
+.game-shell:fullscreen .topbar { flex: 0 0 42px; margin-bottom: 10px; }
+.game-shell:fullscreen .game-card { display: flex; min-height: 0; flex: 1; flex-direction: column; }
+.game-shell:fullscreen .game-stage,
+.game-shell:fullscreen .game-stage.title-screen { height: auto; min-height: 0; flex: 1; aspect-ratio: auto; }
+.game-shell:fullscreen .below-game,
+.game-shell:fullscreen .credit { display: none; }
 .mobile-controls { display: none; }
 canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; }
 .scanlines { z-index: 1; pointer-events: none; position: absolute; inset: 0; opacity: .11; background: repeating-linear-gradient(0deg, transparent 0 3px, #070a12 4px); }
@@ -95,8 +102,9 @@ canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; 
 .start-button:hover { transform: translateY(-2px); background: #c0ffd6; }
 .start-button span { margin-left: 9px; font-size: 15px; }
 .key-hint { margin-top: 19px; color: #b9bac4; font-size: 16px; text-shadow: none; }
+.touch-hint, .instruction-touch-icon, .touch-copy { display: none; }
 kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-radius: 2px; padding: 1px 4px 0; color: #f1eff0; background: #303344; font: 12px "VT323", monospace; }
-.key-hint > span { padding: 0 4px; color: #a5f2c0; }
+.keyboard-hint > span { padding: 0 4px; color: #a5f2c0; }
 .overlay.shop-open { background: rgba(10, 14, 20, .84); }
 .game-stage:not(.title-screen) .hero-art { display: none; }
 .overlay.shop-open .shop-card { position: relative; z-index: 1; }
@@ -201,7 +209,7 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
   .game-stage.title-screen .create-level-button { margin-top: 8px; }
   .brand { font-size: 8px; }
   .topbar-actions { gap: 7px; }
-  .top-note { font-size: 9px; letter-spacing: .5px; }
+  .top-note { display: none; }
   .audio-toggle { gap: 4px; min-height: 27px; padding: 0 6px; font-size: 10px; letter-spacing: .4px; }
   h1 { font-size: clamp(27px, 7vw, 42px); letter-spacing: -2px; }
   .eyebrow { font-size: 6px; }
@@ -228,10 +236,6 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
   .shop-button { font-size: 7px; padding: 0 6px; }
   .shop-message { margin: 5px 0 6px; font-size: 13px; }
   .shop-card > .start-button { font-size: 7px; padding: 8px; }
-  .below-game { align-items: flex-start; flex-direction: column; gap: 11px; }
-  .instructions { width: 100%; justify-content: space-between; gap: 4px; }
-  .instruction-copy small { display: none; }
-  .instruction-copy b { font-size: 14px; }
   .tip { font-size: 14px; }
   .copyright { font-size: 11px; }
 }
@@ -241,6 +245,16 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
 }
 
 @media (max-width: 700px), (pointer: coarse) {
+  .below-game { align-items: flex-start; flex-direction: column; gap: 11px; }
+  .instructions { display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .instruction { min-width: 0; gap: 5px; }
+  .instruction-keys, .keyboard-hint, .keyboard-copy { display: none; }
+  .instruction-touch-icon { display: grid; width: 21px; height: 25px; flex: 0 0 21px; place-items: center; color: var(--accent); font-size: 19px; }
+  .instruction-copy { min-width: 0; margin-left: 0; }
+  .instruction-copy b { font-size: 14px; }
+  .instruction-copy small { display: block; margin-top: 3px; font-size: 12px; white-space: nowrap; }
+  .touch-copy, .touch-hint { display: inline; }
+  .key-hint .touch-hint { display: block; }
   .mobile-controls:not([hidden]) {
     z-index: 2;
     position: absolute;
@@ -254,10 +268,6 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
     -webkit-user-select: none;
   }
   .mobile-movement, .mobile-actions { display: flex; align-items: flex-end; gap: 8px; }
-  .mobile-movement { display: grid; grid-template-columns: repeat(2, 52px); grid-template-rows: 52px 52px; }
-  .mobile-movement [data-touch-key="arrowleft"] { grid-column: 1; grid-row: 2; }
-  .mobile-movement [data-touch-key="arrowright"] { grid-column: 2; grid-row: 2; }
-  .mobile-movement .jump-button { grid-column: 2; grid-row: 1; }
   .touch-button {
     display: grid;
     width: 52px;
@@ -284,6 +294,8 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
   .brand-mark { width: 28px; height: 28px; }
   .top-note { letter-spacing: .4px; }
   .top-note .live-dot { display: none; }
+  .fullscreen-toggle { gap: 0; }
+  .fullscreen-toggle #fullscreen-label { display: none; }
   .audio-toggle { font-size: 9px; }
   .game-footer { gap: 5px; padding: 0 6px; }
   .world-label { font-size: 12px; }
@@ -293,6 +305,5 @@ kbd { display: inline-block; margin: 0 2px; border: 1px solid #76798a; border-ra
   .wallet { min-width: 38px; font-size: 13px; }
   .key-hint { font-size: 11px; }
   .mobile-controls { inset-inline: 7px; bottom: 7px; }
-  .mobile-movement { grid-template-columns: 46px 46px; grid-template-rows: 46px 46px; }
   .touch-button { width: 46px; height: 46px; border-radius: 10px; }
 }

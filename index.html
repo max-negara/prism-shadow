@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="ro">
+<html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#101322">
     <title>Shadow of the Prism</title>
     <link rel="stylesheet" href="style.css">
@@ -12,19 +12,22 @@
       <header class="topbar">
         <a class="brand" href="#" aria-label="Shadow of the Prism, home">
           <span class="brand-mark">忍</span>
-          <span>UMBRA <i>PRISMEI</i></span>
+          <span>SHADOW <i>OF THE PRISM</i></span>
         </a>
         <div class="topbar-actions">
-          <div class="top-note"><span class="live-dot"></span> AVENTURĂ PIXEL ART</div>
-          <button id="audio-toggle" class="audio-toggle" type="button" aria-pressed="true" aria-label="Oprește sunetul">
-            <span id="audio-icon" aria-hidden="true">♫</span><span id="audio-label">SUNET PORNIT</span>
+          <div class="top-note"><span class="live-dot"></span> PIXEL ART ADVENTURE</div>
+          <button id="fullscreen-toggle" class="audio-toggle fullscreen-toggle" type="button" aria-pressed="false" aria-label="Enter fullscreen">
+            <span id="fullscreen-icon" aria-hidden="true">⛶</span><span id="fullscreen-label">FULLSCREEN</span>
+          </button>
+          <button id="audio-toggle" class="audio-toggle" type="button" aria-pressed="true" aria-label="Mute sound">
+            <span id="audio-icon" aria-hidden="true">♫</span><span id="audio-label">SOUND ON</span>
           </button>
         </div>
       </header>
 
-      <section class="game-card" aria-label="Joc platformer">
+      <section class="game-card" aria-label="Platform game">
         <div class="game-stage">
-          <canvas id="game" width="960" height="540" aria-label="Joc video: învinge monștrii și adună cristalele"></canvas>
+          <canvas id="game" width="960" height="540" aria-label="Video game: defeat monsters and collect the crystals"></canvas>
           <div class="scanlines" aria-hidden="true"></div>
           <div id="overlay" class="overlay">
             <div class="hero-art" aria-hidden="true">
@@ -93,84 +96,99 @@
               </svg>
             </div>
             <div class="title-card">
-              <span class="eyebrow">AVENTURĂ PIXEL ART · 5 LUMI</span>
+              <span class="eyebrow">PIXEL ART ADVENTURE · 5 WORLDS</span>
               <h1>Shadow<br><span>of the Prism</span></h1>
-              <p>Străbate lumi misterioase, înfruntă monștri și adună cristalele înainte să cadă în mâinile bossului suprem.</p>
-              <div class="hero-highlights" aria-label="Conținutul jocului">
-                <span><b>5</b> lumi</span>
-                <span><b>15</b> niveluri</span>
-                <span><b>1</b> boss final</span>
+              <p>Journey through mysterious worlds, battle monsters, and collect the crystals before they fall into the ultimate boss's hands.</p>
+              <div class="hero-highlights" aria-label="Game highlights">
+                <span><b>5</b> worlds</span>
+                <span><b>15</b> levels</span>
+                <span><b>1</b> final boss</span>
               </div>
-              <button id="start-button" class="start-button">JOACĂ ACUM <span>→</span></button>
+              <button id="start-button" class="start-button">PLAY NOW <span>→</span></button>
               <button id="create-level-button" class="start-button create-level-button" type="button">CREATE YOUR OWN LEVEL <span>✎</span></button>
-              <button id="custom-replay-button" class="start-button custom-result-button" type="button" hidden>JOACĂ DIN NOU <span>↻</span></button>
-              <button id="custom-home-button" class="start-button custom-result-button" type="button" hidden>MERGI LA PAGINA PRINCIPALĂ <span>⌂</span></button>
-              <button id="continue-run-button" class="start-button continue-run-button" type="button" hidden>CONTINUĂ PENTRU 500 ◈</button>
-              <div class="key-hint"><kbd>A</kbd><kbd>D</kbd> sau <kbd>←</kbd><kbd>→</kbd> mișcare <span>·</span> <kbd>SPACE</kbd> salt <span>·</span> clic stânga / <kbd>J</kbd> atac</div>
+              <button id="custom-replay-button" class="start-button custom-result-button" type="button" hidden>PLAY AGAIN <span>↻</span></button>
+              <button id="custom-home-button" class="start-button custom-result-button" type="button" hidden>BACK TO MAIN MENU <span>⌂</span></button>
+              <button id="continue-run-button" class="start-button continue-run-button" type="button" hidden>CONTINUE FOR 500 ◈</button>
+              <div class="key-hint">
+                <span class="keyboard-hint"><kbd>A</kbd><kbd>D</kbd> or <kbd>←</kbd><kbd>→</kbd> move <span>·</span> <kbd>SPACE</kbd> jump <span>·</span> left-click / <kbd>J</kbd> attack</span>
+                <span class="touch-hint">Use the on-screen buttons to move, jump, and attack.</span>
+              </div>
             </div>
-            <section id="level-editor" class="level-editor" aria-label="Editor de nivel" hidden>
+            <section id="level-editor" class="level-editor" aria-label="Level editor" hidden>
               <div class="level-editor-heading">
-                <span class="eyebrow">ATELIERUL NINJAULUI</span>
+                <span class="eyebrow">NINJA WORKSHOP</span>
                 <h2>CREATE YOUR<br><span>OWN LEVEL</span></h2>
-                <p>Alege un obiect, apoi apasă pe grilă pentru a-l plasa.</p>
+                <p>Choose an object, then click the grid to place it.</p>
               </div>
-              <div class="editor-palette" aria-label="Obiecte de plasat">
-                <button class="editor-tool selected" type="button" data-editor-tool="platform">Platformă</button>
-                <button class="editor-tool" type="button" data-editor-tool="spikes">Țepi</button>
-                <button class="editor-tool" type="button" data-editor-tool="enemy">Inamic</button>
-                <button class="editor-tool" type="button" data-editor-tool="erase">Șterge</button>
+              <div class="editor-palette" aria-label="Objects to place">
+                <button class="editor-tool selected" type="button" data-editor-tool="platform">Platform</button>
+                <button class="editor-tool" type="button" data-editor-tool="spikes">Spikes</button>
+                <button class="editor-tool" type="button" data-editor-tool="enemy">Enemy</button>
+                <button class="editor-tool" type="button" data-editor-tool="erase">Erase</button>
               </div>
-              <canvas id="editor-canvas" width="960" height="540" aria-label="Grila de construcție a nivelului"></canvas>
-              <p id="editor-message" class="editor-message" aria-live="polite">Plasează platforme, țepi sau inamici. Poarta de final este în dreapta.</p>
+              <canvas id="editor-canvas" width="960" height="540" aria-label="Level building grid"></canvas>
+              <p id="editor-message" class="editor-message" aria-live="polite">Place platforms, spikes, or enemies. The exit gate is on the right.</p>
               <div class="editor-actions">
                 <button id="editor-back-button" class="editor-secondary" type="button">EXIT</button>
-                <button id="editor-clear-button" class="editor-secondary" type="button">GOLIȚI NIVELUL</button>
-                <button id="editor-play-button" class="start-button" type="button">JOACĂ NIVELUL <span>→</span></button>
+                <button id="editor-clear-button" class="editor-secondary" type="button">CLEAR LEVEL</button>
+                <button id="editor-play-button" class="start-button" type="button">PLAY LEVEL <span>→</span></button>
               </div>
             </section>
-            <section id="shop" class="shop-card" aria-label="Magazin ninja" hidden>
-              <span class="eyebrow">PRADA GARDIANULUI</span>
-              <h2>Magazinul<br><span>ninjaului</span></h2>
+            <section id="shop" class="shop-card" aria-label="Ninja shop" hidden>
+              <span class="eyebrow">THE GUARDIAN'S LOOT</span>
+              <h2>Ninja<br><span>Shop</span></h2>
               <p id="shop-balance" class="shop-balance"></p>
               <div id="shop-items" class="shop-items"></div>
-              <h3 class="shop-section-title">SKINURI NINJA</h3>
+              <h3 class="shop-section-title">NINJA SKINS</h3>
               <div id="skin-items" class="shop-items"></div>
               <p id="shop-message" class="shop-message" aria-live="polite"></p>
-              <button id="continue-button" class="start-button">CONTINUĂ <span>→</span></button>
+              <button id="continue-button" class="start-button">CONTINUE <span>→</span></button>
             </section>
           </div>
-          <div id="mobile-controls" class="mobile-controls" aria-label="Controale tactile" hidden>
+          <div id="mobile-controls" class="mobile-controls" aria-label="Touch controls" hidden>
             <div class="mobile-movement">
-              <button class="touch-button" type="button" data-touch-key="arrowleft" aria-label="Mergi la stânga">◀</button>
-              <button class="touch-button" type="button" data-touch-key="arrowright" aria-label="Mergi la dreapta">▶</button>
-              <button class="touch-button jump-button" type="button" data-touch-action="jump" aria-label="Sari">⬆</button>
+              <button class="touch-button" type="button" data-touch-key="arrowleft" aria-label="Move left">◀</button>
+              <button class="touch-button" type="button" data-touch-key="arrowright" aria-label="Move right">▶</button>
             </div>
             <div class="mobile-actions">
-              <button class="touch-button attack-button" type="button" data-touch-action="attack" aria-label="Atacă">⚔</button>
-              <button id="mobile-flame-button" class="touch-button flame-button" type="button" data-touch-action="flame" aria-label="Aruncător de flăcări" hidden>🔥</button>
+              <button class="touch-button jump-button" type="button" data-touch-action="jump" aria-label="Jump">⬆</button>
+              <button class="touch-button attack-button" type="button" data-touch-action="attack" aria-label="Attack">⚔</button>
+              <button id="mobile-flame-button" class="touch-button flame-button" type="button" data-touch-action="flame" aria-label="Flamethrower" hidden>🔥</button>
             </div>
           </div>
           <div id="toast" class="toast" aria-live="polite"></div>
         </div>
         <footer class="game-footer">
-          <div class="world-label"><span class="footer-icon">✦</span><span id="world-name">Pădurea de jad</span></div>
-          <div class="crystal-track" id="crystal-track" aria-label="Cristale adunate"></div>
-          <div id="wallet" class="wallet" aria-label="Bani">◈ <span id="coin-count">0</span></div>
-          <div class="health" id="health" aria-label="Vieți"></div>
+          <div class="world-label"><span class="footer-icon">✦</span><span id="world-name">Jade Forest</span></div>
+          <div class="crystal-track" id="crystal-track" aria-label="Crystals collected"></div>
+          <div id="wallet" class="wallet" aria-label="Coins">◈ <span id="coin-count">0</span></div>
+          <div class="health" id="health" aria-label="Lives"></div>
         </footer>
       </section>
 
       <section class="below-game">
         <div class="instructions">
-          <div class="instruction"><span class="keycap">A</span><span class="keycap">D</span><span class="instruction-copy"><b>Mișcare</b><small>Sau săgețile</small></span></div>
-          <div class="instruction"><span class="keycap wide">SPACE</span><span class="instruction-copy"><b>Sari</b><small>Ferește-te de pericole</small></span></div>
-          <div class="instruction"><span class="keycap wide">CLICK</span><span class="instruction-copy"><b>Atacă</b><small>Sau apasă J</small></span></div>
+          <div class="instruction">
+            <span class="instruction-keys"><span class="keycap">A</span><span class="keycap">D</span></span>
+            <span class="instruction-touch-icon" aria-hidden="true">↔</span>
+            <span class="instruction-copy"><b>Move</b><small><span class="keyboard-copy">Or use the arrow keys</span><span class="touch-copy">Tap ◀ / ▶</span></small></span>
+          </div>
+          <div class="instruction">
+            <span class="instruction-keys"><span class="keycap wide">SPACE</span></span>
+            <span class="instruction-touch-icon" aria-hidden="true">⬆</span>
+            <span class="instruction-copy"><b>Jump</b><small><span class="keyboard-copy">Avoid hazards</span><span class="touch-copy">Tap jump</span></small></span>
+          </div>
+          <div class="instruction">
+            <span class="instruction-keys"><span class="keycap wide">CLICK</span></span>
+            <span class="instruction-touch-icon" aria-hidden="true">⚔</span>
+            <span class="instruction-copy"><b>Attack</b><small><span class="keyboard-copy">Or press J</span><span class="touch-copy">Tap attack</span></small></span>
+          </div>
         </div>
-        <p class="tip"><span>✧</span> Sari peste țepi, șanțuri și mingile de foc ale monstrului suprem!</p>
+        <p class="tip"><span>✧</span> Jump over spikes, pits, and the ultimate boss's fireballs!</p>
       </section>
       <div class="credit">
-        <span class="credit-tagline">O călătorie pixel cu pixel ✦</span>
-        <span class="copyright">© 2026 Shadow of the Prism · Toate drepturile rezervate</span>
+        <span class="credit-tagline">A pixel-by-pixel adventure ✦</span>
+        <span class="copyright">© 2026 Shadow of the Prism · All rights reserved</span>
       </div>
     </main>
     <script src="game.js"></script>
